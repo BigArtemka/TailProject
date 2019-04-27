@@ -1,10 +1,13 @@
 package tail;
 
 import org.apache.commons.io.input.ReversedLinesFileReader;
-import org.kohsuke.args4j.Option;
 import org.kohsuke.args4j.Argument;
+import org.kohsuke.args4j.Option;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.List;
