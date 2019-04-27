@@ -115,7 +115,7 @@ public class Tail {
             File f = new File(o);
             BufferedWriter buf = new BufferedWriter(new FileWriter(f));
             for (String re : res) {
-                buf.write(re + "\n"); //System.lineSeparator()
+                buf.write(re + "\n"); //System.lineSeparator
             }
             buf.close();
         } else {
