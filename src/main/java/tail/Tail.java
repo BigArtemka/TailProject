@@ -35,14 +35,14 @@ public class Tail {
                 if (inputFileName.size() > 1)
                     result.add(anInputFileName);
                 File file = new File(anInputFileName);
-                ReversedLinesFileReader reader = new ReversedLinesFileReader(file); //try-with-resources
-                for (int i = 0; i < n; i++) {
-                    String line = reader.readLine();
-                    if (line != null)
-                        result.add(result.size() - i, line);
-                    else break;
+                try (ReversedLinesFileReader reader = new ReversedLinesFileReader(file)) {
+                    for (int i = 0; i < n; i++) {
+                        String line = reader.readLine();
+                        if (line != null)
+                            result.add(result.size() - i, line);
+                        else break;
+                    }
                 }
-                reader.close();
             }
         } else {
             result = cmdGetLastLines();
@@ -57,17 +57,18 @@ public class Tail {
                 if (inputFileName.size() > 1)
                     result.add(anInputFileName);
                 File file = new File(anInputFileName);
-                ReversedLinesFileReader reader = new ReversedLinesFileReader(file);
-                int counter = 0;
-                while (c > 0) {
-                    String line = reader.readLine();
-                    if (line != null)
-                        if (c >= line.length()) {
-                            result.add(result.size() - counter, line);
-                            c -= line.length();
-                        } else result.add(result.size() - counter, line.substring(line.length() - c));
-                    else break;
-                    counter++;
+                try (ReversedLinesFileReader reader = new ReversedLinesFileReader(file)) {
+                    int counter = 0;
+                    while (c > 0) {
+                        String line = reader.readLine();
+                        if (line != null)
+                            if (c >= line.length()) {
+                                result.add(result.size() - counter, line);
+                                c -= line.length();
+                            } else result.add(result.size() - counter, line.substring(line.length() - c));
+                        else break;
+                        counter++;
+                    }
                 }
             }
         } else result = cmdGetLastSymbols();
@@ -118,7 +119,7 @@ public class Tail {
             File f = new File(o);
             BufferedWriter buf = new BufferedWriter(new FileWriter(f));
             for (String re : res) {
-                buf.write(re + "\n"); //System.lineSeparator
+                buf.write(re + System.lineSeparator());
             }
             buf.close();
         } else {
