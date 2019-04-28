@@ -1,0 +1,18 @@
+input/1.txt
+aklewgmklweamglk
+ngjewngkjewn
+dksaglkadgknl
+kangk
+adngiowegpawo
+peoawktpowpogm
+mklgawmegopa
+kmgkawmekg
+kmeawgop
+orpewarapow
+mgklewmalkae
+input/2.txt
+Тут вот пять строчек чисто для
+того чтобы вот посмотреть что
+программа не выдаст EXEPTION
+а выведет просто все и вообще
+все будет good and alright

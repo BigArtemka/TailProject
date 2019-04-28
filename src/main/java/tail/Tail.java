@@ -2,6 +2,8 @@ package tail;
 
 import org.apache.commons.io.input.ReversedLinesFileReader;
 import org.kohsuke.args4j.Argument;
+import org.kohsuke.args4j.CmdLineException;
+import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 
 import java.io.BufferedWriter;
@@ -15,6 +17,11 @@ import java.util.Scanner;
 
 
 public class Tail {
+
+    public Tail(String[] args) throws CmdLineException {
+        CmdLineParser parser = new CmdLineParser(this);
+        parser.parseArgument(args);
+    }
 
     @Argument(usage = "Input file name", metaVar = "fileName", multiValued = true)
     private ArrayList<String> inputFileName;
@@ -65,7 +72,10 @@ public class Tail {
                             if (c >= line.length()) {
                                 result.add(result.size() - counter, line);
                                 c -= line.length();
-                            } else result.add(result.size() - counter, line.substring(line.length() - c));
+                            } else {
+                                result.add(result.size() - counter, line.substring(line.length() - c));
+                                break;
+                            }
                         else break;
                         counter++;
                     }
@@ -135,7 +145,7 @@ public class Tail {
             if (n != 0)
                 out = getLastLines();
             else {
-                n = 20;
+                n = 10;
                 out = getLastLines();
             }
         } else out = getLastSymbols();
