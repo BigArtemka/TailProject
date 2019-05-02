@@ -10,10 +10,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.InputMismatchException;
-import java.util.List;
-import java.util.Scanner;
+import java.nio.charset.Charset;
+import java.util.*;
 
 /**
  * @author BigArtemka
@@ -80,19 +78,13 @@ public class Tail {
      * @throws IOException
      *          если не удалось открыть файл, обозначенный указанным путем.
      */
-    private List<String> getLastLines() throws IOException {
+    private List<String> getLastLines(int n) throws IOException {
         List<String> result = new ArrayList<>();
         if (inputFileName != null) {
-            for (String anInputFileName : inputFileName) {
-                /*
-                  Если файлов несколько, перед выводом для
-                  каждого файла выводится его имя в отдельной строке
-                 */
-                if (inputFileName.size() > 1)
-                    result.add(anInputFileName);
-                File file = new File(anInputFileName);
-                try (ReversedLinesFileReader reader = new ReversedLinesFileReader(file)) {
-                    for (int i = 0; i < n; i++) {
+            for (int i = inputFileName.size() - 1; i >= 0; i--) {
+                File file = new File(inputFileName.get(i));
+                try (ReversedLinesFileReader reader = new ReversedLinesFileReader(file, Charset.forName("UTF-8"))) {
+                    for (int j = 0; j < n; j++) {
                         String line = reader.readLine();
                         /*
                         Пока строки в файле не закончатся или не выведется необходимое
@@ -101,11 +93,18 @@ public class Tail {
                         добавленными строками.
                          */
                         if (line != null)
-                            result.add(result.size() - i, line);
+                            result.add(line);
                         else break;
                     }
                 }
+                /*
+                  Если файлов несколько, перед выводом для
+                  каждого файла выводится его имя в отдельной строке
+                 */
+                if (inputFileName.size() > 1)
+                    result.add(inputFileName.get(i));
             }
+            Collections.reverse(result);
         } else {
             result = cmdGetLastLines();
         }
@@ -119,19 +118,12 @@ public class Tail {
      * @throws IOException
      *          если не удалось открыть файл, обозначенный указанным путем.
      */
-    private List<String> getLastSymbols() throws IOException {
+    private List<String> getLastSymbols(int c) throws IOException {
         List<String> result = new ArrayList<>();
         if (inputFileName != null) {
-            for (String anInputFileName : inputFileName) {
-                /*
-                  Если файлов несколько, перед выводом для
-                  каждого файла выводится его имя в отдельной строке
-                 */
-                if (inputFileName.size() > 1)
-                    result.add(anInputFileName);
-                File file = new File(anInputFileName);
-                try (ReversedLinesFileReader reader = new ReversedLinesFileReader(file)) {
-                    int counter = 0;
+            for (int i = inputFileName.size() - 1; i >= 0; i--) {
+                File file = new File(inputFileName.get(i));
+                try (ReversedLinesFileReader reader = new ReversedLinesFileReader(file, Charset.forName("UTF-8"))) {
                     /*
                         Пока строки в файле не закончатся или не выведется необходимое
                         символов, в список добавляется строка.
@@ -147,19 +139,25 @@ public class Tail {
                                 добавляется вся строка.
                              */
                             if (c >= line.length()) {
-                                result.add(result.size() - counter, line);
+                                result.add(line);
                                 c -= line.length();
                             } else {
                                 //Иначе добавляется подстрока из c последних символов.
-                                result.add(result.size() - counter, line.substring(line.length() - c));
+                                result.add(line.substring(line.length() - c));
                                 break;
                             }
                         else break;
-                        counter++;
                     }
+                    /*
+                        Если файлов несколько, перед выводом для
+                        каждого файла выводится его имя в отдельной строке
+                    */
+                    if (inputFileName.size() > 1)
+                        result.add(inputFileName.get(i));
                 }
             }
-        } else result = cmdGetLastSymbols();
+            Collections.reverse(result);
+        } else result = cmdGetLastSymbols(c);
         return result;
     }
 
@@ -186,7 +184,7 @@ public class Tail {
      * если не указаны имена входных файлов.
      *
      */
-    private List<String> cmdGetLastSymbols() {
+    private List<String> cmdGetLastSymbols(int c) {
         List<String> res = cmdInput();
         List<String> result = new ArrayList<>();
         for (int i = res.size() - 1; i >= 0; i--) {
@@ -257,13 +255,12 @@ public class Tail {
         List<String> out;
         if (c == 0) {
             if (n != 0)
-                out = getLastLines();
+                out = getLastLines(n);
             else {
                 //Если ни один из флагов [-c] и [-n] не указан, выводит последние 10 строк.
-                n = 10;
-                out = getLastLines();
+                out = getLastLines(10);
             }
-        } else out = getLastSymbols();
+        } else out = getLastSymbols(c);
         return out;
     }
 }
